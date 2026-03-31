@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Kanishk AI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#212121;--bg2:#2f2f2f;--sb:#171717;--hov:#2a2a2a;
+  --ibg:#2f2f2f;--txt:#ececec;--txt2:#8e8ea0;--txt3:#676767;
+  --green:#10a37f;--bdr:#3d3d3d;--bdr2:#4a4a4a;--r:12px;--rsm:8px;--sw:260px;
+}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.6;overflow:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:4px}
+*{scrollbar-width:thin;scrollbar-color:var(--bdr) transparent}
+#app{display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+#sidebar{width:var(--sw);background:var(--sb);border-right:1px solid var(--bdr);display:flex;flex-direction:column;flex-shrink:0;transition:transform .3s ease;overflow:hidden}
+.sb-top{display:flex;align-items:center;justify-content:space-between;padding:14px 12px 10px}
+.brand{display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:600;color:var(--txt);letter-spacing:-.2px;text-decoration:none}
+.brand-icon{width:30px;height:30px;background:linear-gradient(135deg,#10a37f,#0d7a60);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 2px 8px rgba(16,163,127,.35)}
+.ib{background:none;border:none;color:var(--txt2);cursor:pointer;padding:7px;border-radius:7px;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;flex-shrink:0}
+.ib:hover{background:var(--hov);color:var(--txt)}
+.new-chat{display:flex;align-items:center;gap:10px;margin:0 8px 4px;padding:9px 12px;border-radius:var(--rsm);border:none;background:none;color:var(--txt);font-size:14px;font-family:inherit;cursor:pointer;transition:background .15s;text-align:left;width:calc(100% - 16px)}
+.new-chat:hover{background:var(--hov)}
+.new-chat svg{color:var(--txt2);flex-shrink:0}
+.sb-sec{padding:8px 20px 4px;font-size:10.5px;font-weight:500;color:var(--txt3);letter-spacing:.6px;text-transform:uppercase}
+#chat-list{flex:1;overflow-y:auto;padding:0 8px}
+.chi{padding:9px 12px;border-radius:var(--rsm);cursor:pointer;font-size:13px;color:var(--txt2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .15s,color .15s;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.chi:hover{background:var(--hov);color:var(--txt)}
+.chi.active{background:var(--bg2);color:var(--txt)}
+.chi .del{display:none;background:none;border:none;color:var(--txt3);cursor:pointer;padding:2px;border-radius:4px;flex-shrink:0}
+.chi:hover .del{display:flex;align-items:center}
+.chi .del:hover{color:#ef4444}
+.sb-bot{border-top:1px solid var(--bdr);padding:8px}
+.user-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rsm);cursor:pointer;transition:background .15s}
+.user-row:hover{background:var(--hov)}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7c5cbf,#5b8dd9);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0}
+.uname{font-size:13px;font-weight:500;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;backdrop-filter:blur(2px)}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--bdr);flex-shrink:0;gap:8px}
+.model-btn{display:flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid var(--bdr);border-radius:20px;background:none;color:var(--txt);font-size:13.5px;font-family:inherit;font-weight:500;cursor:pointer;transition:background .15s,border-color .15s}
+.model-btn:hover{background:var(--hov);border-color:var(--bdr2)}
+.tb-right{display:flex;align-items:center;gap:4px}
+#mob-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.mob-brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--txt)}
+
+/* CHAT AREA */
+#chat-area{flex:1;overflow-y:auto;scroll-behavior:smooth;position:relative}
+
+/* WELCOME */
+#welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:40px 20px 140px;text-align:center}
+.wl-logo{width:56px;height:56px;background:linear-gradient(135deg,#10a37f,#0d7a60);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;margin-bottom:22px;box-shadow:0 4px 24px rgba(16,163,127,.3)}
+.wl-title{font-size:27px;font-weight:600;color:var(--txt);letter-spacing:-.5px;margin-bottom:8px}
+.wl-sub{font-size:14.5px;color:var(--txt2);margin-bottom:36px;max-width:380px;line-height:1.6}
+.suggs{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:580px;width:100%}
+.sc{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px;text-align:left;cursor:pointer;transition:background .15s,border-color .15s,transform .1s;font-family:inherit;color:var(--txt)}
+.sc:hover{background:var(--hov);border-color:var(--bdr2);transform:translateY(-1px)}
+.sc-ico{width:26px;height:26px;border-radius:6px;background:var(--hov);display:flex;align-items:center;justify-content:center;margin-bottom:8px;color:var(--txt2)}
+.sc-title{font-size:13px;font-weight:500;color:var(--txt);margin-bottom:2px}
+.sc-desc{font-size:12px;color:var(--txt3)}
+
+/* MESSAGES */
+#messages{display:none;max-width:760px;margin:0 auto;padding:24px 16px 140px;width:100%}
+.mr{display:flex;gap:14px;margin-bottom:26px;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.mr.user{flex-direction:row-reverse}
+.mav{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:2px}
+.mav.aav{background:linear-gradient(135deg,#10a37f,#0d7a60);color:#fff}
+.mav.uav{background:linear-gradient(135deg,#7c5cbf,#5b8dd9);color:#fff}
+.mb{flex:1;min-width:0}
+.mlbl{font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:5px}
+.mt{font-size:15px;line-height:1.75;color:var(--txt);word-break:break-word}
+.mr.user .mt{background:var(--bg2);border:1px solid var(--bdr);padding:11px 16px;border-radius:18px 18px 4px 18px;display:inline-block;max-width:100%}
+.mt p{margin-bottom:10px}
+.mt p:last-child{margin-bottom:0}
+.mt ul,.mt ol{padding-left:22px;margin-bottom:10px}
+.mt li{margin-bottom:4px}
+.mt strong{font-weight:600}
+.mt em{font-style:italic}
+.mt a{color:var(--green);text-decoration:underline}
+
+/* Code block */
+.cblk{background:#161616;border:1px solid var(--bdr);border-radius:var(--rsm);margin:12px 0;overflow:hidden}
+.chdr{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--bdr);background:#111}
+.clng{font-size:11.5px;color:var(--txt3);font-family:monospace}
+.ccp{background:none;border:none;color:var(--txt3);font-size:11.5px;cursor:pointer;display:flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;font-family:inherit;transition:color .15s,background .15s}
+.ccp:hover{color:var(--txt);background:var(--hov)}
+.cblk pre{padding:14px 16px;overflow-x:auto;font-family:'Courier New',monospace;font-size:13px;line-height:1.65;color:#e2e2e2;white-space:pre}
+
+/* Msg actions */
+.macts{display:flex;gap:2px;margin-top:8px;opacity:0;transition:opacity .2s}
+.mr:hover .macts{opacity:1}
+.abt{background:none;border:none;color:var(--txt3);cursor:pointer;padding:5px 7px;border-radius:6px;display:flex;align-items:center;gap:5px;font-size:12px;font-family:inherit;transition:background .15s,color .15s}
+.abt:hover{background:var(--hov);color:var(--txt)}
+.abt.liked{color:var(--green)}
+.abt.disliked{color:#ef4444}
+
+/* Typing */
+.dots{display:flex;align-items:center;gap:5px;padding:12px 0}
+.dot{width:7px;height:7px;background:var(--txt3);border-radius:50%;animation:bnc 1.3s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes bnc{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+.scur::after{content:'|';animation:blink .7s infinite;color:var(--green);font-size:14px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* INPUT */
+#inp-area{flex-shrink:0;padding:8px 16px 14px;background:var(--bg);position:relative}
+#inp-area::before{content:'';position:absolute;top:-36px;left:0;right:0;height:36px;background:linear-gradient(transparent,var(--bg));pointer-events:none}
+.inpwrap{max-width:760px;margin:0 auto}
+.inpbox{display:flex;align-items:flex-end;background:var(--ibg);border:1px solid var(--bdr);border-radius:16px;padding:8px 10px;gap:8px;transition:border-color .2s,box-shadow .2s}
+.inpbox:focus-within{border-color:var(--bdr2);box-shadow:0 0 0 1px rgba(255,255,255,.05)}
+.inpleft{display:flex;align-items:flex-end;gap:2px}
+.att{background:none;border:none;color:var(--txt3);cursor:pointer;padding:7px;border-radius:7px;display:flex;align-items:center;transition:background .15s,color .15s}
+.att:hover{background:var(--hov);color:var(--txt)}
+#uinp{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:15px;font-family:inherit;resize:none;max-height:200px;min-height:24px;line-height:1.5;padding:5px 0;overflow-y:auto}
+#uinp::placeholder{color:var(--txt3)}
+.sbtn{width:34px;height:34px;border-radius:9px;border:none;background:var(--txt);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .1s,opacity .15s;flex-shrink:0;opacity:.25}
+.sbtn.rdy{opacity:1}
+.sbtn.rdy:hover{background:#d8d8d8;transform:scale(1.04)}
+.sbtn svg{color:var(--bg)}
+.stpbtn{width:34px;height:34px;border-radius:9px;border:none;background:var(--txt);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0}
+.stpbtn:hover{background:#d8d8d8}
+.stpbtn svg{color:var(--bg)}
+.inpfoot{text-align:center;margin-top:8px;font-size:11px;color:var(--txt3)}
+
+/* MODAL */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;backdrop-filter:blur(4px)}
+.mbg.open{opacity:1;pointer-events:all}
+.modal{background:#2a2a2a;border:1px solid var(--bdr);border-radius:16px;width:min(500px,93vw);padding:24px;transform:scale(.95);transition:transform .2s;max-height:90vh;overflow-y:auto}
+.mbg.open .modal{transform:scale(1)}
+.mhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.mtitle{font-size:17px;font-weight:600}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--bdr)}
+.srow:last-child{border-bottom:none}
+.slbl{font-size:14px}
+.sdesc{font-size:12px;color:var(--txt3);margin-top:2px}
+
+/* TOAST */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#3a3a3a;border:1px solid var(--bdr2);color:var(--txt);padding:8px 18px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:999;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  #sidebar{position:fixed;left:0;top:0;bottom:0;z-index:60;transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+  #sb-overlay.show{display:block}
+  #topbar{display:none!important}
+  #mob-topbar{display:flex!important}
+  .suggs{grid-template-columns:1fr;max-width:360px}
+  #messages{padding-bottom:160px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sb-top">
+    <a class="brand" href="#"><div class="brand-icon">K</div>Kanishk AI</a>
+    <button class="ib" onclick="closeSB()">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+  <button class="new-chat" onclick="newChat()">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    New chat
+  </button>
+  <div class="sb-sec" id="hist-lbl" style="display:none">Recent</div>
+  <div id="chat-list"></div>
+  <div class="sb-bot">
+    <div class="user-row" onclick="openSets()">
+      <div class="avatar" id="uav">K</div>
+      <div class="uname" id="uname">Kanishk</div>
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--txt3);flex-shrink:0"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </div>
+  </div>
+</div>
+<div id="sb-overlay" onclick="closeSB()"></div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- Desktop topbar -->
+  <div id="topbar">
+    <button class="model-btn">
+      <span id="mlbl">✨ Kanishk AI (Free)</span>
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="tb-right">
+      <button class="ib" title="New chat" onclick="newChat()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button class="ib" title="Settings" onclick="openSets()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+      <button class="ib" title="Open sidebar" onclick="openSB()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile topbar -->
+  <div id="mob-topbar">
+    <button class="ib" onclick="openSB()">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <div class="mob-brand">
+      <div class="brand-icon" style="width:26px;height:26px;font-size:13px">K</div>
+      Kanishk AI
+    </div>
+    <button class="ib" onclick="newChat()">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </div>
+
+  <!-- Chat area -->
+  <div id="chat-area">
+    <div id="welcome">
+      <div class="wl-logo">K</div>
+      <div class="wl-title">Kanishk AI ke saath baat karo</div>
+      <div class="wl-sub">Bilkul free! Koi API key nahi, koi registration nahi. Sirf puch aur jawaab pao! 🚀</div>
+      <div class="suggs">
+        <div class="sc" onclick="useSug('Kanishk ke father ka naam kya hai?')">
+          <div class="sc-ico">👨‍👦</div>
+          <div class="sc-title">Father</div><div class="sc-desc">Kanishk ke father ke baare mein</div>
+        </div>
+        <div class="sc" onclick="useSug('Hello, tum kaun ho?')">
+          <div class="sc-ico">👋</div>
+          <div class="sc-title">Greeting</div><div class="sc-desc">Kanishk AI ko jano</div>
+        </div>
+        <div class="sc" onclick="useSug('Python mein Hello World likha do')">
+          <div class="sc-ico">💻</div>
+          <div class="sc-title">Code</div><div class="sc-desc">Coding help</div>
+        </div>
+        <div class="sc" onclick="useSug('Mera naam kya hai?')">
+          <div class="sc-ico">🎯</div>
+          <div class="sc-title">Personal</div><div class="sc-desc">Kanishk ke baare mein</div>
+        </div>
+      </div>
+    </div>
+    <div id="messages"></div>
+  </div>
+
+  <!-- Input -->
+  <div id="inp-area">
+    <div class="inpwrap">
+      <div class="inpbox">
+        <div class="inpleft"></div>
+        <textarea id="uinp" placeholder="Message Kanishk AI..." rows="1" onkeydown="onKD(event)" oninput="onIC(this)"></textarea>
+        <button class="sbtn" id="sbtn" onclick="send()">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </button>
+      </div>
+      <div class="inpfoot">✨ Kanishk AI v1.0 • Bilkul Free • No API Key Required</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- SETTINGS MODAL -->
+<div class="mbg" id="sets-modal" onclick="onMBG(event)">
+  <div class="modal">
+    <div class="mhd">
+      <div class="mtitle">Settings</div>
+      <button class="ib" onclick="closeSets()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+
+    <div class="srow">
+      <div><div class="slbl">Your Name</div><div class="sdesc">Aapka naam</div></div>
+      <input type="text" id="name-inp" style="width:130px;background:var(--bg2);border:1px solid var(--bdr);color:var(--txt);padding:7px 12px;border-radius:8px;font-size:13px;font-family:inherit;outline:none;margin-top:0" placeholder="Kanishk" oninput="updateName(this.value)"/>
+    </div>
+
+    <div class="srow">
+      <div><div class="slbl">Chat History</div><div class="sdesc">Aapki baatein save rakhega</div></div>
+      <div style="font-size:12px;color:var(--txt2)">✅ Enabled</div>
+    </div>
+
+    <div class="srow">
+      <div><div class="slbl">Clear All Chats</div><div class="sdesc">Sab baten delete kar do</div></div>
+      <button onclick="clearAll()" style="background:#3a1a1a;border:1px solid #6b2121;color:#f87171;padding:7px 14px;border-radius:8px;font-size:12.5px;font-family:inherit;cursor:pointer">Clear</button>
+    </div>
+
+    <div class="srow" style="border-bottom:none;justify-content:center;padding-top:10px">
+      <div style="font-size:11.5px;color:var(--txt3);text-align:center">🎉 Kanishk AI v1.0 • 100% Free • Offline Mode</div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ── KANISHK KE BAARE MEIN ── */
+const KANISHK_INFO = {
+  name: 'Kanishk',
+  father_name: 'Ranu Singh',
+  address: 'Tarikampur Paras Pathra, Bijnor, Uttar Pradesh, India',
+  country: 'India',
+  intro: 'Namaste! Main Kanishk AI hoon, created by Kanishk.'
+};
+
+/* ── AI RESPONSES DATABASE ── */
+const AI_RESPONSES = {
+  'father|baap|papa|ranu': `Kanishk ke father ka naam hai **Ranu Singh**! Woh **Tarikampur Paras Pathra, Bijnor, Uttar Pradesh, India** mein rehte hain. 👨‍👦`,
+  
+  'hello|hi|namaste|salaam|hey': `Namaste! 👋 Main Kanishk AI hoon - tera personal AI assistant! Bilkul free, koi API key nahi, sirf aapki help karne ke liye yahan hoon. Kuch puchna hai?`,
+  
+  'python|hello world|code': `Bilkul! Yeh Python mein Hello World likha hai:\n\n\`\`\`python\nprint("Hello, World!")\n\`\`\`\n\nYe code run karoge toh output hoga: **Hello, World!** 🎉`,
+  
+  'name|naam|kon ho|who': `Main **Kanishk AI** hoon! Created by **${KANISHK_INFO.name}**. Maine help karne, coding seekhane, aur funny baatein karne ke liye hoon. 😊`,
+  
+  'address|location|ghar|bijnor': `**Kanishk** **Tarikampur Paras Pathra** mein rehte hain, jo **Bijnor, Uttar Pradesh, India** mein hai. 📍`,
+  
+  'india|country|uttar pradesh|up': `Haan! Kanishk **Uttar Pradesh, India** se hain! Specifically **Bijnor** district mein, aur ghar **Tarikampur Paras Pathra** mein hai. 🇮🇳`,
+  
+  'thanks|thank you|shukriya|dhanyavaad': `Welcome! 🎉 Mujhe khusi hai ki main tumhe help kar saka. Kuch aur puchna ho toh bilkul puch! 😊`,
+  
+  'help|commands|kya kar sakta': `Main ye sab kar sakta hoon:\n\n1. **Kanishk ke baare mein puchna** - Father, address, etc.\n2. **Coding help** - Python, JavaScript, etc.\n3. **General questions** - Kuch bhi puchho!\n4. **Fun chat** - Baatein karna\n\nBas puch! 😊`,
+};
+
+/* ── STATE ── */
+let sessions = {};
+let activeId = null;
+let running = false;
+let uname = ls('kAI_name') || 'You';
+
+/* ── INIT ── */
+(function(){
+  try{ const r = ls('kAI_sess'); if(r) sessions = JSON.parse(r); }catch(e){ sessions = {}; }
+  $('name-inp').value = uname;
+  $('uname').textContent = uname;
+  $('uav').textContent = uname[0]?.toUpperCase() || 'U';
+  renderHL();
+})();
+
+/* ── HELPERS ── */
+function $(id){ return document.getElementById(id); }
+function ls(k,v){ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function genId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function scrollBot(){ const ca=$('chat-area'); ca.scrollTop=ca.scrollHeight; }
+function saveS(){ try{ ls('kAI_sess', JSON.stringify(sessions)); }catch(e){} }
+
+/* ── AI RESPONSE ENGINE ── */
+function getAIResponse(userMsg) {
+  const msg = userMsg.toLowerCase().trim();
+  
+  for(const [keywords, response] of Object.entries(AI_RESPONSES)) {
+    const keywordList = keywords.split('|');
+    for(const keyword of keywordList) {
+      if(msg.includes(keyword)) {
+        return response;
+      }
+    }
+  }
+  
+  const defaults = [
+    'Bilkul! Ye interesting question hai. Aur kuch puchna? 🤔',
+    'Mujhe samajh nahi aaya, lekin try kar ke bata! 😊',
+    'Yeh baat mujhe samajhni hai. Aur detail mein bata! 📝',
+    'Interesting! Aur baatein karte hain? 💭',
+  ];
+  return defaults[Math.floor(Math.random() * defaults.length)];
+}
+
+/* ── HISTORY ── */
+function renderHL(){
+  const list=$('chat-list'), lbl=$('hist-lbl');
+  const ids=Object.keys(sessions).sort((a,b)=>b.localeCompare(a));
+  list.innerHTML='';
+  if(!ids.length){ lbl.style.display='none'; return; }
+  lbl.style.display='';
+  ids.forEach(id=>{
+    const s=sessions[id];
+    const el=document.createElement('div');
+    el.className='chi'+(id===activeId?' active':'');
+    el.title=s.title;
+    el.innerHTML=`<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${esc(s.title)}</span>
+<button class="del" title="Delete" onclick="delS(event,'${id}')">
+<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+</button>`;
+    el.addEventListener('click', e=>{ if(e.target.closest('.del')) return; loadS(id); closeSB(); });
+    list.appendChild(el);
+  });
+}
+
+function loadS(id){
+  if(!sessions[id]) return;
+  activeId=id;
+  $('welcome').style.display='none';
+  const mc=$('messages');
+  mc.style.display='block'; mc.innerHTML='';
+  sessions[id].messages.forEach(m=>renderMsg(m.role,m.content,false));
+  scrollBot();
+  renderHL();
+}
+
+function delS(e,id){
+  e.stopPropagation();
+  delete sessions[id];
+  saveS();
+  if(activeId===id) newChat();
+  else renderHL();
+}
+
+function clearAll(){
+  if(!confirm('Sab chats delete kar du? Ye reverse nahi ho sakta!')) return;
+  sessions={}; saveS();
+  newChat(); closeSets();
+  toast('All chats cleared! 🗑️');
+}
+
+function newChat(){
+  activeId=null;
+  const mc=$('messages');
+  mc.innerHTML=''; mc.style.display='none';
+  $('welcome').style.display='';
+  $('uinp').value=''; $('uinp').style.height='auto';
+  $('sbtn').classList.remove('rdy');
+  renderHL(); closeSB();
+}
+
+/* ── SEND MESSAGE ── */
+async function send(){
+  const inp=$('uinp');
+  const text=inp.value.trim();
+  if(!text||running) return;
+
+  $('welcome').style.display='none';
+  const mc=$('messages');
+  mc.style.display='block';
+
+  if(!activeId){
+    activeId=genId();
+    sessions[activeId]={
+      title: text.slice(0,42)+(text.length>42?'…':''),
+      messages:[]
+    };
+  }
+
+  const sess=sessions[activeId];
+  sess.messages.push({role:'user',content:text});
+  renderMsg('user',text,true);
+  inp.value=''; inp.style.height='auto';
+  $('sbtn').classList.remove('rdy');
+
+  saveS();
+  renderHL();
+
+  running=true; setBtn(true);
+  const aiRow=mkAiRow();
+
+  await new Promise(r => setTimeout(r, 500));
+
+  const aiMsg = getAIResponse(text);
+  
+  const te=aiRow.querySelector('.mt');
+  te.innerHTML=renderMD(aiMsg);
+  scrollBot();
+
+  sess.messages.push({role:'assistant',content:aiMsg});
+  saveS();
+
+  const acts=aiRow.querySelector('.macts');
+  if(acts) acts.style.opacity='';
+  running=false; setBtn(false);
+}
+
+/* ── RENDER MESSAGE ── */
+function renderMsg(role,text,anim){
+  const mc=$('messages');
+  const row=document.createElement('div');
+  row.className='mr '+(role==='user'?'user':'ai-row');
+  if(!anim) row.style.animation='none';
+
+  const av=document.createElement('div');
+  av.className='mav '+(role==='user'?'uav':'aav');
+  av.textContent=role==='user'?(uname[0]?.toUpperCase()||'U'):'K';
+
+  const body=document.createElement('div');
+  body.className='mb';
+
+  const lbl=document.createElement('div');
+  lbl.className='mlbl';
+  lbl.textContent=role==='user'?uname:'Kanishk AI';
+
+  const te=document.createElement('div');
+  te.className='mt';
+  if(role==='user') te.textContent=text;
+  else te.innerHTML=renderMD(text);
+
+  body.appendChild(lbl);
+  body.appendChild(te);
+  if(role!=='user'){
+    const acts=mkActs(text,row);
+    body.appendChild(acts);
+  }
+
+  if(role==='user'){ row.appendChild(body); row.appendChild(av); }
+  else { row.appendChild(av); row.appendChild(body); }
+
+  mc.appendChild(row);
+  scrollBot();
+  return row;
+}
+
+function mkAiRow(){
+  const mc=$('messages');
+  const row=document.createElement('div');
+  row.className='mr ai-row';
+  const av=document.createElement('div');
+  av.className='mav aav'; av.textContent='K';
+  const body=document.createElement('div');
+  body.className='mb';
+  const lbl=document.createElement('div');
+  lbl.className='mlbl'; lbl.textContent='Kanishk AI';
+  const te=document.createElement('div');
+  te.className='mt';
+  te.innerHTML=`<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  const acts=document.createElement('div');
+  acts.className='macts'; acts.style.opacity='0';
+  body.appendChild(lbl); body.appendChild(te); body.appendChild(acts);
+  row.appendChild(av); row.appendChild(body);
+  mc.appendChild(row); scrollBot();
+  return row;
+}
+
+function mkActs(text,rowEl){
+  const acts=document.createElement('div');
+  acts.className='macts';
+
+  const cp=document.createElement('button');
+  cp.className='abt';
+  cp.innerHTML=`📋 Copy`;
+  cp.onclick=()=>{
+    navigator.clipboard.writeText(text).then(()=>{
+      cp.innerHTML=`✅ Copied!`;
+      setTimeout(()=>{ cp.innerHTML=`📋 Copy`; },2000);
+    });
+  };
+
+  acts.appendChild(cp);
+  return acts;
+}
+
+/* ── MARKDOWN RENDER ── */
+function renderMD(raw){
+  if(!raw) return '';
+  let t=raw;
+  
+  t=t.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,lang,code)=>{
+    return `<div class="cblk"><div class="chdr"><span class="clng">${esc(lang||'text')}</span></div><pre>${esc(code.trim())}</pre></div>`;
+  });
+
+  t=t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  t=t.replace(/\*(.+?)\*/g,'<em>$1</em>');
+
+  t=t.split('\n').join('<br>');
+
+  return t;
+}
+
+/* ── INPUT ── */
+function onKD(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); if(!running) send(); } }
+function onIC(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,200)+'px';
+  $('sbtn').classList.toggle('rdy', el.value.trim().length>0);
+}
+function useSug(t){ const i=$('uinp'); i.value=t; onIC(i); i.focus(); }
+
+/* ── SEND BTN ── */
+function setBtn(on){
+  const b=$('sbtn');
+  if(on){
+    b.className='stpbtn';
+    b.innerHTML=`⏹️`;
+  } else {
+    b.className='sbtn';
+    b.innerHTML=`<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`;
+  }
+}
+
+/* ── SIDEBAR ── */
+function openSB(){ $('sidebar').classList.add('open'); $('sb-overlay').classList.add('show'); }
+function closeSB(){ $('sidebar').classList.remove('open'); $('sb-overlay').classList.remove('show'); }
+
+/* ── SETTINGS ── */
+function openSets(){ $('name-inp').value=uname; $('sets-modal').classList.add('open'); }
+function closeSets(){ $('sets-modal').classList.remove('open'); }
+function onMBG(e){ if(e.target===$('sets-modal')) closeSets(); }
+function updateName(v){
+  if(!v.trim()) return;
+  uname=v.trim(); ls('kAI_name',uname);
+  $('uname').textContent=uname;
+  $('uav').textContent=uname[0]?.toUpperCase()||'U';
+}
+
+/* ── TOAST ── */
+let tTimer;
+function toast(msg){
+  const el=$('toast'); el.textContent=msg; el.classList.add('show');
+  clearTimeout(tTimer); tTimer=setTimeout(()=>el.classList.remove('show'),2600);
+}
+</script>
+</body>
+</html>
